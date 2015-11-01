@@ -6,8 +6,35 @@
     [compojure.route          :as route]
     [environ.core             :refer (env)]
     [compojure.core           :refer (ANY GET defroutes)]
+    [clj-json.core            :as json]
     [ring.util.response       :refer (response redirect content-type)])
   (:gen-class))
+
+(defn command-my-position
+  "handler of 'my_position' command from client."
+  [ch params]
+(let [longitude (get params "longitude")
+      user (get params "user")
+      latitude (get params "latitude")]
+  (println "Command: [my-position]")
+  (println (str "User: " user))
+  (println (str "Long/lat: " longitude  "/" latitude " " ))
+  ))
+
+
+
+(defn command-wrong
+  "Issue on a wrong command"
+  [ch packet]
+  (async/send! ch (str "Wrong command '" ("command" packet) "'")))
+
+(defn call-command [ch command packet]
+  (let [func-name (str "command-" command)
+        func (ns-resolve 'websocketclj_lab.core (symbol func-name))]
+    (println func-name)
+    (println func)
+    (when func
+      (func ch packet))))
 
 
 (def websocket-callbacks
@@ -18,15 +45,16 @@
    :on-close   (fn [channel {:keys [code reason]}]
                  (println "close code:" code "reason:" reason))
    :on-message (fn [ch m]
-                 (println m)
-                 (async/send! ch (apply str (reverse m))))})
+                 (let [packet (json/parse-string m)
+                       command (clojure.string/trim (get packet "command" "wrong"))]
+                   (println (count command))
+                   (call-command ch command packet)
+                   (async/send! ch (apply str (reverse m)))))})
 
 
 (defroutes routes
   (GET "/" {c :context} (redirect (str c "/index.html")))
   (route/resources "/"))
-
-
 
 
 (defn -main [& {:as args}]
