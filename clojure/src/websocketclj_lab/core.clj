@@ -10,15 +10,22 @@
     [ring.util.response       :refer (response redirect content-type)])
   (:gen-class))
 
+; This is stupid, I know
+(def positions (atom {}))
+
+(defn partition-number [long_or_lat] (int (/ long_or_lat 10000)))
+
 (defn command-my-position
   "handler of 'my_position' command from client."
   [ch params]
 (let [longitude (get params "longitude")
       user (get params "user")
       latitude (get params "latitude")]
+
   (println "Command: [my-position]")
   (println (str "User: " user))
   (println (str "Long/lat: " longitude  "/" latitude " " ))
+  (swap! (get (get poisitions long_group) lat_group) #(assoc % user [longitude latitude]))
   ))
 
 
