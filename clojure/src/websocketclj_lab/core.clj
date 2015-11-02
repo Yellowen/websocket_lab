@@ -12,21 +12,37 @@
 
 ; This is stupid, I know
 (def positions (atom {}))
+(def users (atom {}))
 
 (defn partition-number [long_or_lat] (int (/ long_or_lat 10000)))
 
-(defn command-my-position
-  "handler of 'my_position' command from client."
-  [ch params]
-(let [longitude (get params "longitude")
-      user (get params "user")
-      latitude (get params "latitude")]
+(defn update-user-position [user location]
+  )
+(defn update-grid-data [user location]
+  (let [long_group (partition-number (first location))
+        lat_group (partition-number (second location))
+        location_group [long_group lat_group]]
 
-  (println "Command: [my-position]")
-  (println (str "User: " user))
-  (println (str "Long/lat: " longitude  "/" latitude " " ))
-  (swap! (get (get poisitions long_group) lat_group) #(assoc % user [longitude latitude]))
-  ))
+    ;; use transitions to update both users and positions
+    (swap! positions
+           #(if (empty? (get % location_group))
+              (do (assoc % location_group #{user}))
+              (do (conj (get % location_group) user))))
+    (swap! users))
+
+
+  (defn command-my-position
+    "handler of 'my_position' command from client."
+    [ch params]
+    (let [longitude (get params "longitude")
+          user (get params "user")
+          latitude (get params "latitude")]
+
+      (println "Command: [my-position]")
+      (println (str "User: " user))
+      (println (str "Long/lat: " longitude  "/" latitude " " ))
+
+      )))
 
 
 
