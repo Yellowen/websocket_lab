@@ -10,25 +10,6 @@
     [ring.util.response       :refer (response redirect content-type)])
   (:gen-class))
 
-; This is stupid, I know
-(def positions (atom {}))
-(def users (atom {}))
-
-(defn partition-number [long_or_lat] (int (/ long_or_lat 10000)))
-
-(defn update-user-position [user location]
-  )
-(defn update-grid-data [user location]
-  (let [long_group (partition-number (first location))
-        lat_group (partition-number (second location))
-        location_group [long_group lat_group]]
-
-    ;; use transitions to update both users and positions
-    (swap! positions
-           #(if (empty? (get % location_group))
-              (do (assoc % location_group #{user}))
-              (do (conj (get % location_group) user))))
-    (swap! users))
 
 
   (defn command-my-position
