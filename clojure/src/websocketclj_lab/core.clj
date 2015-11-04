@@ -10,9 +10,9 @@
     [ring.util.response       :refer (response redirect content-type)])
   (:gen-class))
 
+(def geohash_index (atom []))
 
-
-  (defn command-my-position
+(defn command-my-position
     "handler of 'my_position' command from client."
     [ch params]
     (let [longitude (get params "longitude")
