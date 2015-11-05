@@ -14,22 +14,34 @@
 (def geohash-index (atom (sorted-map)))
 (def user-index (atom {}))
 
+(def timeout (* 1000 5 60))
 
+(def now []
+  (/ (System/currentTimeMillis) 1000))
+
+(def five-minutes-ago []
+  (- now timeout))
 
 (defn update-index [index hash user]
-  (let [index-key (subs hash 0 6)]))
+  (let [index-key (subs hash 0 6)
+        index-data (get index index-key)]
+    (assoc index index-key (into {user [(now) hash lan lon]}
+                                 (filter #(< (second %)
+                                             five-minutes-ago)
+                                         index-data)))))
+
 (defn command-my-position
     "handler of 'my_position' command from client."
     [ch params]
     (let [longitude (get params "longitude")
           user (get params "user")
           latitude (get params "latitude")
-          geohash (geohash/encode latitude longitude)]
+          geohash (geohash/encode [latitude longitude])]
 
       (println "Command: [my-position]")
       (println (str "User: " user))
       (println (str "Long/lat: " longitude  "/" latitude " " ))
-      (swap! geohash-index update-index geohash user)))
+      (swap! geohash-index update-index geohash user latitude longitude)))
 
 
 
