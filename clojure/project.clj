@@ -9,7 +9,7 @@
                  [compojure "1.4.0"]
                  [ring/ring-core "1.4.0"]
                  [clj-json "0.5.3"]
-                 [org.clojars.sunng/geohash "1.0.1"]
+                 [geohash "1.0.0"]
                  [environ "1.0.1"]]
 
   :main websocketclj_lab.core

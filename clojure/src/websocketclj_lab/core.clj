@@ -7,23 +7,29 @@
     [environ.core             :refer (env)]
     [compojure.core           :refer (ANY GET defroutes)]
     [clj-json.core            :as json]
+    [geohash.core             :as geohash]
     [ring.util.response       :refer (response redirect content-type)])
   (:gen-class))
 
-(def geohash_index (atom []))
+(def geohash-index (atom (sorted-map)))
+(def user-index (atom {}))
 
+
+
+(defn update-index [index hash user]
+  (let [index-key (subs hash 0 6)]))
 (defn command-my-position
     "handler of 'my_position' command from client."
     [ch params]
     (let [longitude (get params "longitude")
           user (get params "user")
-          latitude (get params "latitude")]
+          latitude (get params "latitude")
+          geohash (geohash/encode latitude longitude)]
 
       (println "Command: [my-position]")
       (println (str "User: " user))
       (println (str "Long/lat: " longitude  "/" latitude " " ))
-
-      )))
+      (swap! geohash-index update-index geohash user)))
 
 
 
