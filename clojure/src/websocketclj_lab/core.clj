@@ -16,16 +16,18 @@
 
 (def timeout (* 1000 5 60))
 
-(def now []
+(defn geosection [geohash] (subs geohash 0 6))
+
+(defn now []
   (/ (System/currentTimeMillis) 1000))
 
-(def five-minutes-ago []
+(defn five-minutes-ago []
   (- now timeout))
 
-(defn update-index [index hash user]
-  (let [index-key (subs hash 0 6)
+(defn update-index [index hash user lat lon]
+  (let [index-key (geosection hash)
         index-data (get index index-key)]
-    (assoc index index-key (into {user [(now) hash lan lon]}
+    (assoc index index-key (into {user [(now) hash lat lon]}
                                  (filter #(< (second %)
                                              five-minutes-ago)
                                          index-data)))))
@@ -41,7 +43,8 @@
       (println "Command: [my-position]")
       (println (str "User: " user))
       (println (str "Long/lat: " longitude  "/" latitude " " ))
-      (swap! geohash-index update-index geohash user latitude longitude)))
+      (swap! geohash-index update-index geohash user latitude longitude)
+      (async/send! ch (apply json/generate-string  (get @geohash-index (geosection geohash))))))
 
 
 
