@@ -11,25 +11,26 @@
     [ring.util.response       :refer (response redirect content-type)])
   (:gen-class))
 
+
 (def geohash-index (atom (sorted-map)))
 (def user-index (atom {}))
 
-(def timeout (* 1000 5 60))
+(def timeout (* 1000 1000 60))
 
-(defn geosection [geohash] (subs geohash 0 6))
+(defn geosection [geohash] (subs geohash 0 5))
 
 (defn now []
-  (/ (System/currentTimeMillis) 1000))
+  (int (/ (System/currentTimeMillis) 1000)))
 
 (defn five-minutes-ago []
-  (- now timeout))
+  (- (now) timeout))
 
 (defn update-index [index hash user lat lon]
   (let [index-key (geosection hash)
         index-data (get index index-key)]
     (assoc index index-key (into {user [(now) hash lat lon]}
-                                 (filter #(< (second %)
-                                             five-minutes-ago)
+                                 (filter #(do (println (first (second %))) (> (first  (second %))
+                                                                              (five-minutes-ago)))
                                          index-data)))))
 
 (defn command-my-position
@@ -44,7 +45,8 @@
       (println (str "User: " user))
       (println (str "Long/lat: " longitude  "/" latitude " " ))
       (swap! geohash-index update-index geohash user latitude longitude)
-      (async/send! ch (apply json/generate-string  (get @geohash-index (geosection geohash))))))
+      (println @geohash-index)
+      (async/send! ch (json/generate-string  (get @geohash-index (geosection geohash))))))
 
 
 
@@ -73,8 +75,7 @@
                  (let [packet (json/parse-string m)
                        command (clojure.string/trim (get packet "command" "wrong"))]
                    (println (count command))
-                   (call-command ch command packet)
-                   (async/send! ch (apply str (reverse m)))))})
+                   (call-command ch command packet)))})
 
 
 (defroutes routes
