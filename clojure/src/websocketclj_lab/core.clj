@@ -68,7 +68,6 @@
   "WebSocket callback functions"
   {:on-open   (fn [channel]
                 (println "New connect received")
-                (async/send! channel "Ready to reverse your messages!"))
    :on-close   (fn [channel {:keys [code reason]}]
                  (println "close code:" code "reason:" reason))
    :on-message (fn [ch m]
