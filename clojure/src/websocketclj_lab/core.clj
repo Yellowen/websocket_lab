@@ -1,14 +1,15 @@
 (ns websocketclj_lab.core
   (:require
-    [immutant.web             :as web]
-    [immutant.web.async       :as async]
-    [immutant.web.middleware  :as web-middleware]
-    [compojure.route          :as route]
-    [environ.core             :refer (env)]
-    [compojure.core           :refer (ANY GET defroutes)]
-    [clj-json.core            :as json]
-    [geohash.core             :as geohash]
-    [ring.util.response       :refer (response redirect content-type)])
+   [immutant.web             :as web]
+   [digest]
+   [immutant.web.async       :as async]
+   [immutant.web.middleware  :as web-middleware]
+   [compojure.route          :as route]
+   [environ.core             :refer (env)]
+   [compojure.core           :refer (ANY GET defroutes)]
+   [clj-json.core            :as json]
+   [geohash.core             :as geohash]
+   [ring.util.response       :refer (response redirect content-type)])
   (:gen-class))
 
 
@@ -28,7 +29,7 @@
 (defn update-index [index hash user lat lon]
   (let [index-key (geosection hash)
         index-data (get index index-key)]
-    (assoc index index-key (into {user [(now) hash lat lon]}
+    (assoc index index-key (into {user [(now) hash lat lon user (digest/md5 user)]}
                                  (filter #(do (println (first (second %))) (> (first  (second %))
                                                                               (five-minutes-ago)))
                                          index-data)))))
@@ -67,7 +68,7 @@
 (def websocket-callbacks
   "WebSocket callback functions"
   {:on-open   (fn [channel]
-                (println "New connect received")
+                (println "New connect received"))
    :on-close   (fn [channel {:keys [code reason]}]
                  (println "close code:" code "reason:" reason))
    :on-message (fn [ch m]
