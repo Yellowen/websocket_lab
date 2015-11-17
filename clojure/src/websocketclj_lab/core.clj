@@ -7,6 +7,7 @@
     [environ.core             :refer (env)]
     [compojure.core           :refer (ANY GET defroutes)]
     [clj-json.core            :as json]
+    [digest]
     [geohash.core             :as geohash]
     [ring.util.response       :refer (response redirect content-type)])
   (:gen-class))
@@ -28,7 +29,7 @@
 (defn update-index [index hash user lat lon]
   (let [index-key (geosection hash)
         index-data (get index index-key)]
-    (assoc index index-key (into {user [(now) hash lat lon]}
+    (assoc index index-key (into {user [(now) hash lat lon user (digest/md5 user)]}
                                  (filter #(do (println (first (second %))) (> (first  (second %))
                                                                               (five-minutes-ago)))
                                          index-data)))))
