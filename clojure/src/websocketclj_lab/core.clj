@@ -67,7 +67,7 @@
 (def websocket-callbacks
   "WebSocket callback functions"
   {:on-open   (fn [channel]
-                (println "New connect received")
+                (println "New connect received"))
    :on-close   (fn [channel {:keys [code reason]}]
                  (println "close code:" code "reason:" reason))
    :on-message (fn [ch m]
