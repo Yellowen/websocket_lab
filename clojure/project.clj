@@ -10,6 +10,7 @@
                  [ring/ring-core "1.4.0"]
                  [digest "1.4.4"]
                  [clj-json "0.5.3"]
+                 [digest "1.4.4"]
                  [geohash "1.0.0"]
                  [environ "1.0.1"]]
 
