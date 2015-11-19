@@ -61,8 +61,9 @@
         func (ns-resolve 'websocketclj_lab.core (symbol func-name))]
     (println func-name)
     (println func)
-    (when func
-      (func ch packet))))
+    (if func
+      (func ch packet)
+      (async/send! ch "Command did not implemented yet."))))
 
 
 (def websocket-callbacks
